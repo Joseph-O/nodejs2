@@ -1,0 +1,39 @@
+{
+  "MachineName": "ASROCK",
+  "Model": "NUCS BOX-1340P/D4",
+  "SerialNumber": "H3BSIF000006",
+  "PrimaryMacAddress": "9C:6B:00:01:37:FA",
+  "PrimaryIpAddress": "192.168.211.83",
+  "CpuInformation": [
+    {
+      "Name": "13th Gen Intel(R) Core(TM) i5-1340P",
+      "Description": "Intel64 Family 6 Model 186 Stepping 2",
+      "Manufacturer": "GenuineIntel",
+      "Version": "",
+      "NumberOfCores": 12,
+      "NumberOfLogicalProcessors": 16,
+      "Architecture": "x64",
+      "MaxClockSpeed": 1900,
+      "CurrentClockSpeed": 1900,
+      "ProcessorId": "BFEBFBFF000B06A2",
+      "SocketDesignation": "CPUSocket",
+      "Temperature": null,
+      "CoreTemperatures": [],
+      "FanSpeed": null
+    }
+  ],
+  "MemoryModules": [
+    {
+      "Manufacturer": "Micron Technology",
+      "PartNumber": "8ATF1G64HZ-3G2R1",
+      "SerialNumber": "374827E8",
+      "Capacity": 8589934592,
+      "Speed": 3200,
+      "MemoryType": "Unknown",
+      "FormFactor": "SODIMM",
+      "BankLabel": "BANK 0",
+      "DeviceLocator": "Controller1-ChannelA-DIMM0"
+    }
+  ],
+  "TotalPhysicalMemory": 8346300416
+}

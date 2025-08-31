@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav {
+            margin-bottom: 20px;
+        }
+        .nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #0066cc;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #customerList {
+            margin-top: 20px;
+        }
+        .customer-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">Users</a>
+        <a href="/customers.html">Customers</a>
+        <a href="/distributors.html">Distributors</a>
+        <a href="/computers.html">Computers</a>
+    </div>
+
+    <h1>Customer Management</h1>
+    
+    <div id="customerForm">
+        <h2>Add New Customer</h2>
+        <div class="form-group">
+            <label for="name">Customer Name:</label>
+            <input type="text" id="name" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email">
+        </div>
+        <div class="form-group">
+            <label for="address">Address:</label>
+            <input type="text" id="address">
+        </div>
+        <button onclick="createCustomer()">Add Customer</button>
+    </div>
+
+    <div id="customerList">
+        <h2>Customer List</h2>
+        <div id="customers"></div>
+    </div>
+
+    <script>
+        // Load customers when the page loads
+        document.addEventListener('DOMContentLoaded', loadCustomers);
+
+        function createCustomer() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+
+            if (!name || !phone) {
+                alert('Name and Phone are required');
+                return;
+            }
+
+            const customerData = {
+                name,
+                contact: {
+                    phone,
+                    email: email || undefined,
+                    address: address || undefined
+                }
+            };
+
+            fetch('/api/customers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(customerData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to create customer');
+                }
+                return response.json();
+            })
+            .then(() => {
+                // Clear form and reload customers
+                document.getElementById('name').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('address').value = '';
+                loadCustomers();
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+        }
+
+        function loadCustomers() {
+            fetch('/api/customers')
+                .then(response => response.json())
+                .then(customers => {
+                    const customersDiv = document.getElementById('customers');
+                    customersDiv.innerHTML = '';
+                    
+                    customers.forEach(customer => {
+                        const customerCard = document.createElement('div');
+                        customerCard.className = 'customer-card';
+                        customerCard.innerHTML = `
+                            <strong>Name:</strong> ${customer.name}<br>
+                            <strong>Phone:</strong> ${customer.contact.phone}<br>
+                            ${customer.contact.email ? `<strong>Email:</strong> ${customer.contact.email}<br>` : ''}
+                            ${customer.contact.address ? `<strong>Address:</strong> ${customer.contact.address}<br>` : ''}
+                            <strong>Created:</strong> ${new Date(customer.createdAt).toLocaleString()}
+                        `;
+                        customersDiv.appendChild(customerCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading customers:', error);
+                });
+        }
+    </script>
+</body>
+</html>

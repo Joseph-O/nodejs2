@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav {
+            margin-bottom: 20px;
+        }
+        .nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #0066cc;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #computerList {
+            margin-top: 20px;
+        }
+        .computer-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .section {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        .collapsible {
+            background-color: #eee;
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            margin-top: 5px;
+        }
+        .active, .collapsible:hover {
+            background-color: #ddd;
+        }
+        .content {
+            display: none;
+            padding: 10px;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">Users</a>
+        <a href="/customers.html">Customers</a>
+        <a href="/distributors.html">Distributors</a>
+        <a href="/computers.html">Computers</a>
+    </div>
+
+    <h1>Computer Management</h1>
+    
+    <div id="computerForm">
+        <h2>Add New Computer</h2>
+        <div class="form-group">
+            <label for="machineName">Machine Name: (Optional)</label>
+            <input type="text" id="machineName">
+        </div>
+        <div class="form-group">
+            <label for="model">Model: (Required)</label>
+            <input type="text" id="model" required>
+        </div>
+        <div class="form-group">
+            <label for="serialNumber">Serial Number: (Required)</label>
+            <input type="text" id="serialNumber" required>
+        </div>
+        <div class="form-group">
+            <label for="primaryMacAddress">MAC Address: (Optional)</label>
+            <input type="text" id="primaryMacAddress">
+        </div>
+        <div class="form-group">
+            <label for="primaryIpAddress">IP Address: (Optional)</label>
+            <input type="text" id="primaryIpAddress">
+        </div>
+        <button onclick="createComputer()">Add Computer</button>
+        <button onclick="importFromJson()">Import from JSON</button>
+    </div>
+
+    <div id="computerList">
+        <h2>Computer List</h2>
+        <div id="computers"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadComputers);
+
+        function formatBytes(bytes) {
+            if (!bytes) return 'N/A';
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            if (bytes === 0) return '0 Byte';
+            const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+            return Math.round(100 * (bytes / Math.pow(1024, i))) / 100 + ' ' + sizes[i];
+        }
+
+        function createComputer() {
+            const model = document.getElementById('model').value;
+            const serialNumber = document.getElementById('serialNumber').value;
+
+            if (!model || !serialNumber) {
+                alert('Model and Serial Number are required');
+                return;
+            }
+
+            const computerData = {
+                machineName: document.getElementById('machineName').value || undefined,
+                model,
+                serialNumber,
+                primaryMacAddress: document.getElementById('primaryMacAddress').value || undefined,
+                primaryIpAddress: document.getElementById('primaryIpAddress').value || undefined
+            };
+
+            fetch('/api/computers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(computerData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to create computer');
+                }
+                return response.json();
+            })
+            .then(() => {
+                clearForm();
+                loadComputers();
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+        }
+
+        function clearForm() {
+            document.getElementById('machineName').value = '';
+            document.getElementById('model').value = '';
+            document.getElementById('serialNumber').value = '';
+            document.getElementById('primaryMacAddress').value = '';
+            document.getElementById('primaryIpAddress').value = '';
+        }
+
+        function importFromJson() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = async function(event) {
+                    try {
+                        const jsonData = JSON.parse(event.target.result);
+                        const computerData = {
+                            ...jsonData,
+                            model: jsonData.Model,
+                            serialNumber: jsonData.SerialNumber,
+                            machineName: jsonData.MachineName,
+                            primaryMacAddress: jsonData.PrimaryMacAddress,
+                            primaryIpAddress: jsonData.PrimaryIpAddress,
+                            cpuInformation: jsonData.CpuInformation,
+                            memoryModules: jsonData.MemoryModules,
+                            totalPhysicalMemory: jsonData.TotalPhysicalMemory
+                        };
+
+                        const response = await fetch('/api/computers', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(computerData)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to import computer');
+                        }
+
+                        loadComputers();
+                    } catch (error) {
+                        alert('Error importing JSON: ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+
+            input.click();
+        }
+
+        function loadComputers() {
+            fetch('/api/computers')
+                .then(response => response.json())
+                .then(computers => {
+                    const computersDiv = document.getElementById('computers');
+                    computersDiv.innerHTML = '';
+                    
+                    computers.forEach(computer => {
+                        const computerCard = document.createElement('div');
+                        computerCard.className = 'computer-card';
+
+                        let html = `
+                            <strong>Model:</strong> ${computer.model}<br>
+                            <strong>Serial Number:</strong> ${computer.serialNumber}<br>
+                            ${computer.machineName ? `<strong>Machine Name:</strong> ${computer.machineName}<br>` : ''}
+                            ${computer.primaryMacAddress ? `<strong>MAC Address:</strong> ${computer.primaryMacAddress}<br>` : ''}
+                            ${computer.primaryIpAddress ? `<strong>IP Address:</strong> ${computer.primaryIpAddress}<br>` : ''}
+                            <strong>Last Updated:</strong> ${new Date(computer.lastUpdated || computer.createdAt).toLocaleString()}<br>
+                        `;
+
+                        if (computer.cpuInformation && computer.cpuInformation.length > 0) {
+                            html += `<button class="collapsible">CPU Information</button>
+                            <div class="content">
+                                ${computer.cpuInformation.map(cpu => `
+                                    <strong>Name:</strong> ${cpu.name || 'N/A'}<br>
+                                    <strong>Cores/Threads:</strong> ${cpu.numberOfCores || 'N/A'}/${cpu.numberOfLogicalProcessors || 'N/A'}<br>
+                                    <strong>Clock Speed:</strong> ${cpu.currentClockSpeed || 'N/A'} MHz<br>
+                                    <strong>Architecture:</strong> ${cpu.architecture || 'N/A'}<br>
+                                `).join('')}
+                            </div>`;
+                        }
+
+                        if (computer.memoryModules && computer.memoryModules.length > 0) {
+                            html += `<button class="collapsible">Memory Information</button>
+                            <div class="content">
+                                <strong>Total Memory:</strong> ${formatBytes(computer.totalPhysicalMemory)}<br>
+                                ${computer.memoryModules.map(module => `
+                                    <div class="section">
+                                        <strong>Module:</strong> ${module.manufacturer || 'N/A'} ${module.partNumber || ''}<br>
+                                        <strong>Capacity:</strong> ${formatBytes(module.capacity)}<br>
+                                        <strong>Speed:</strong> ${module.speed || 'N/A'} MHz<br>
+                                        <strong>Location:</strong> ${module.deviceLocator || 'N/A'}<br>
+                                    </div>
+                                `).join('')}
+                            </div>`;
+                        }
+
+                        computerCard.innerHTML = html;
+                        computersDiv.appendChild(computerCard);
+
+                        // Add click handlers for collapsible sections
+                        computerCard.querySelectorAll('.collapsible').forEach(button => {
+                            button.addEventListener('click', function() {
+                                this.classList.toggle('active');
+                                const content = this.nextElementSibling;
+                                content.style.display = content.style.display === 'block' ? 'none' : 'block';
+                            });
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading computers:', error);
+                });
+        }
+    </script>
+</body>
+</html>
