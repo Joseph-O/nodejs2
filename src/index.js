@@ -136,6 +136,10 @@ app.post('/api/computers', async (req, res) => {
 app.post('/api/computers/sync', async (req, res) => {
     try {
         // Transform the system info JSON keys to match our schema
+        const knownFields = [
+            'MachineName', 'Model', 'SerialNumber', 'PrimaryMacAddress', 'PrimaryIpAddress',
+            'CpuInformation', 'MemoryModules', 'TotalPhysicalMemory', 'StorageDisks'
+        ];
         const computerData = {
             model: req.body.Model,
             serialNumber: req.body.SerialNumber,
@@ -169,9 +173,25 @@ app.post('/api/computers/sync', async (req, res) => {
                 bankLabel: module.BankLabel,
                 deviceLocator: module.DeviceLocator
             })),
+            storageDisks: req.body.StorageDisks?.map(disk => ({
+                model: disk.Model,
+                serialNumber: disk.SerialNumber,
+                size: disk.Size,
+                type: disk.Type,
+                partitions: disk.Partitions
+            })),
             totalPhysicalMemory: req.body.TotalPhysicalMemory,
-            lastUpdated: Date.now()
+            lastUpdated: Date.now(),
+            // Store any additional fields in 'extra'
+            extra: {}
         };
+
+        // Copy any additional fields from the input JSON to 'extra'
+        for (const key in req.body) {
+            if (!knownFields.includes(key)) {
+                computerData.extra[key] = req.body[key];
+            }
+        }
 
         // Try to find an existing computer with the same serial number
         const existingComputer = await Computer.findOne({ 

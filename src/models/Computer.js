@@ -29,6 +29,14 @@ const memoryModuleSchema = new mongoose.Schema({
     deviceLocator: String
 });
 
+const storageDiskSchema = new mongoose.Schema({
+    model: String,
+    serialNumber: String,
+    size: mongoose.Schema.Types.Mixed,
+    type: String,
+    partitions: mongoose.Schema.Types.Mixed
+});
+
 const computerSchema = new mongoose.Schema({
     machineName: String,
     model: {
@@ -45,6 +53,12 @@ const computerSchema = new mongoose.Schema({
     cpuInformation: [cpuSchema],
     memoryModules: [memoryModuleSchema],
     totalPhysicalMemory: Number,
+    storageDisks: [storageDiskSchema],
+    // Store any additional fields from the JSON here
+    extra: {
+        type: mongoose.Schema.Types.Mixed,
+        default: {}
+    },
     createdAt: {
         type: Date,
         default: Date.now

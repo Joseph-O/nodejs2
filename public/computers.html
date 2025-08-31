@@ -274,6 +274,48 @@
                             </div>`;
                         }
 
+                        // Show DiskInformation if present in extra
+                        if (computer.extra && computer.extra.DiskInformation) {
+                            html += `<button class="collapsible">Disk Information</button><div class="content">`;
+                            if (Array.isArray(computer.extra.DiskInformation)) {
+                                html += computer.extra.DiskInformation.map(disk => `
+                                    <div class="section">
+                                        <strong>Model:</strong> ${disk.Model || 'N/A'}<br>
+                                        <strong>Serial Number:</strong> ${disk.SerialNumber || 'N/A'}<br>
+                                        <strong>Size:</strong> ${disk.Size || 'N/A'}<br>
+                                        <strong>Type:</strong> ${disk.Type || 'N/A'}<br>
+                                        <strong>Partitions:</strong> ${disk.Partitions ? JSON.stringify(disk.Partitions) : 'N/A'}<br>
+                                    </div>
+                                `).join('');
+                            } else {
+                                html += `<pre>${JSON.stringify(computer.extra.DiskInformation, null, 2)}</pre>`;
+                            }
+                            html += `</div>`;
+                        }
+
+                        // Show storageDisks if present
+                        if (computer.storageDisks && computer.storageDisks.length > 0) {
+                            html += `<button class="collapsible">Storage Disks</button><div class="content">`;
+                            computer.storageDisks.forEach(disk => {
+                                html += `<div class="section">
+                                    <strong>Model:</strong> ${disk.model || 'N/A'}<br>
+                                    <strong>Serial Number:</strong> ${disk.serialNumber || 'N/A'}<br>
+                                    <strong>Size:</strong> ${disk.size || 'N/A'}<br>
+                                    <strong>Type:</strong> ${disk.type || 'N/A'}<br>
+                                    <strong>Partitions:</strong> ${disk.partitions ? JSON.stringify(disk.partitions) : 'N/A'}<br>
+                                </div>`;
+                            });
+                            html += `</div>`;
+                        }
+
+                        // Show all other extras
+                        if (computer.extra) {
+                            const keys = Object.keys(computer.extra).filter(k => k !== 'DiskInformation');
+                            if (keys.length > 0) {
+                                html += `<button class="collapsible">Extra Fields</button><div class="content"><pre>${JSON.stringify(computer.extra, null, 2)}</pre></div>`;
+                            }
+                        }
+
                         computerCard.innerHTML = html;
                         computersDiv.appendChild(computerCard);
 
