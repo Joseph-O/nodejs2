@@ -23,7 +23,8 @@ const memoryModuleSchema = new mongoose.Schema({
     serialNumber: String,
     capacity: Number,
     speed: Number,
-    memoryType: String,
+    memoryType: mongoose.Schema.Types.Mixed, // can be string or number
+    typeDetail: mongoose.Schema.Types.Mixed, // new field, can be number or string
     formFactor: String,
     bankLabel: String,
     deviceLocator: String

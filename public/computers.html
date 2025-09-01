@@ -265,10 +265,16 @@
                                 <strong>Total Memory:</strong> ${formatBytes(computer.totalPhysicalMemory)}<br>
                                 ${computer.memoryModules.map(module => `
                                     <div class="section">
-                                        <strong>Module:</strong> ${module.manufacturer || 'N/A'} ${module.partNumber || ''}<br>
-                                        <strong>Capacity:</strong> ${formatBytes(module.capacity)}<br>
-                                        <strong>Speed:</strong> ${module.speed || 'N/A'} MHz<br>
-                                        <strong>Location:</strong> ${module.deviceLocator || 'N/A'}<br>
+                                        <strong>Manufacturer:</strong> ${module.manufacturer || 'N/A'}<br>
+                                        <strong>Serial Number:</strong> ${module.serialNumber || 'N/A'}<br>
+                                        <strong>Bank Label:</strong> ${module.bankLabel || module.BankLabel || 'N/A'}<br>
+                                        <strong>Device Locator:</strong> ${module.deviceLocator || module.DeviceLocator || 'N/A'}<br>
+                                        <strong>Capacity:</strong> ${formatBytes(module.capacity || module.Capacity)}<br>
+                                        <strong>Speed:</strong> ${module.speed || module.Speed || 'N/A'} MHz<br>
+                                        <strong>Memory Type:</strong> ${module.memoryType || module.MemoryType || 'N/A'}<br>
+                                        <strong>Type Detail:</strong> ${module.typeDetail || module.TypeDetail || 'N/A'}<br>
+                                        <strong>Part Number:</strong> ${module.partNumber || module.PartNumber || 'N/A'}<br>
+                                        <strong>Form Factor:</strong> ${module.formFactor || module.FormFactor || 'N/A'}<br>
                                     </div>
                                 `).join('')}
                             </div>`;
