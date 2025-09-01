@@ -193,9 +193,9 @@ app.post('/api/computers/sync', async (req, res) => {
             }
         }
 
-        // Try to find an existing computer with the same serial number
+        // Try to find an existing computer with the same primaryMacAddress
         const existingComputer = await Computer.findOne({ 
-            serialNumber: computerData.serialNumber 
+            primaryMacAddress: computerData.primaryMacAddress 
         });
 
         let computer;

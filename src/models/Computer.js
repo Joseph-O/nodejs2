@@ -46,10 +46,13 @@ const computerSchema = new mongoose.Schema({
     },
     serialNumber: {
         type: String,
+        required: true
+    },
+    primaryMacAddress: {
+        type: String,
         required: true,
         unique: true
     },
-    primaryMacAddress: String,
     primaryIpAddress: String,
     cpuInformation: [cpuSchema],
     memoryModules: [memoryModuleSchema],
