@@ -217,6 +217,7 @@ app.post('/api/computers/sync', async (req, res) => {
         } else {
             // Create new computer
             computer = new Computer(computerData);
+        console.log('[SYNC] computer:', computer);
             await computer.save();
             res.status(201).json({
                 message: 'Computer created successfully',
