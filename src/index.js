@@ -135,6 +135,8 @@ app.post('/api/computers', async (req, res) => {
 // JSON API endpoint for adding/updating computers from system info
 app.post('/api/computers/sync', async (req, res) => {
     try {
+    console.log(`[SYNC] /api/computers/sync triggered at ${new Date().toISOString()} from IP: ${req.ip}`);
+    console.log('[SYNC] Incoming JSON:', JSON.stringify(req.body, null, 2));
         // Transform the system info JSON keys to match our schema
         const knownFields = [
             'MachineName', 'Model', 'SerialNumber', 'PrimaryMacAddress', 'PrimaryIpAddress',
