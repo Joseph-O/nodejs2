@@ -199,6 +199,7 @@ app.post('/api/computers/sync', async (req, res) => {
         const existingComputer = await Computer.findOne({ 
             primaryMacAddress: computerData.primaryMacAddress 
         });
+        console.log('[SYNC] existingComputer:', existingComputer);
 
         let computer;
         if (existingComputer) {
